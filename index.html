@@ -6,6 +6,9 @@
     <title>📺 লাইভ টিভি প্লেয়ার</title>
     
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/dashjs@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/all-in-one-player@latest/dist/all-in-one.js"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
@@ -177,17 +180,11 @@
         const video = document.getElementById('videoPlayer');
         const channelGrid = document.getElementById('channel-grid');
         const statusMessage = document.getElementById('statusMessage');
-        let hls = null;
         let currentItems = [];
         let selectedItemIndex = 0;
         
         // --- প্লেব্যাক ফাংশন ---
-
         function resetPlayer() {
-            if (hls) {
-                hls.destroy();
-                hls = null;
-            }
             video.removeAttribute('src'); 
             video.load(); 
             video.style.display = 'block';
@@ -203,52 +200,31 @@
 
             resetPlayer();
             
-            if (Hls.isSupported()) {
-                hls = new Hls({
-                    // CORS ফিক্সের জন্য header যোগ করা হয়েছে
-                    xhrSetup: function(xhr, url) {
-                        xhr.setRequestHeader('x-requested-with', 'hls.js');
-                    }
-                });
-                hls.loadSource(url);
-                hls.attachMedia(video);
-                
-                hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    video.play().catch(e => {
-                        console.warn("অটোপ্লে ব্লক হয়েছে।", e);
-                        statusMessage.textContent = '▶️ প্লে করতে ভিডিওতে ক্লিক করুন।';
-                    });
-                    statusMessage.style.display = 'none'; 
-                });
+            // `all-in-one-player` ব্যবহার করে প্লেব্যাক
+            const player = new AllInOnePlayer(video, {
+                src: url,
+                autoplay: true,
+                poster: 'https://via.placeholder.com/1280x720.png?text=Loading...',
+                controls: true,
+            });
 
-                hls.on(Hls.Events.ERROR, function (event, data) {
-                    if (data.fatal) {
-                        video.style.display = 'block';
-                        let errorMessage = '❌ **প্লেব্যাক ব্যর্থ।** সম্ভবত: ';
-                        if (data.details.includes('networkError')) {
-                            errorMessage += 'লিঙ্কটি Hotlink বা CORS দ্বারা সুরক্ষিত।';
-                        } else if (data.details.includes('manifestLoadError')) {
-                            errorMessage += 'লিঙ্কটি মেয়াদ উত্তীর্ণ বা ত্রুটিপূর্ণ।';
-                        } else {
-                            errorMessage += data.details;
-                        }
-                        statusMessage.innerHTML = errorMessage;
-                        statusMessage.style.display = 'block';
-                        video.pause();
-                    }
-                });
-
-            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                // নেটিভ সাপোর্ট (Safari/iOS)
-                video.src = url;
-                video.addEventListener('loadedmetadata', () => {
-                    video.play().catch(console.error);
-                    statusMessage.style.display = 'none';
-                }, { once: true });
-            } else {
-                statusMessage.textContent = '❌ দুঃখিত, আপনার ব্রাউজার M3U8 স্ট্রিমিং সমর্থন করে না।';
+            player.on('error', (error) => {
+                video.style.display = 'none';
+                let errorMessage = '❌ **প্লেব্যাক ব্যর্থ।** সম্ভবত: ';
+                if (error.type === 'network') {
+                    errorMessage += 'লিঙ্কটি Hotlink বা CORS দ্বারা সুরক্ষিত।';
+                } else if (error.type === 'fatal') {
+                    errorMessage += 'লিঙ্কটি মেয়াদ উত্তীর্ণ বা ত্রুটিপূর্ণ।';
+                } else {
+                    errorMessage += 'অজানা ত্রুটি।';
+                }
+                statusMessage.innerHTML = errorMessage;
                 statusMessage.style.display = 'block';
-            }
+            });
+
+            player.on('loadedmetadata', () => {
+                statusMessage.style.display = 'none';
+            });
         }
         
         // --- ডেটা লোড এবং ইউআই ফাংশন ---
