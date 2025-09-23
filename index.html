@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📺 লাইভ টিভি প্লেয়ার</title>
     
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script> 
-    <script src="https://cdn.jsdelivr.net/npm/dashjs@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/all-in-one-player@latest/dist/all-in-one.js"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
@@ -209,7 +207,7 @@
             });
 
             player.on('error', (error) => {
-                video.style.display = 'none';
+                video.style.display = 'block';
                 let errorMessage = '❌ **প্লেব্যাক ব্যর্থ।** সম্ভবত: ';
                 if (error.type === 'network') {
                     errorMessage += 'লিঙ্কটি Hotlink বা CORS দ্বারা সুরক্ষিত।';
@@ -268,7 +266,6 @@
         }
         
         // --- কী-বোর্ড নেভিগেশন ---
-
         function navigate(direction) {
             const currentSelected = document.querySelector('.selected');
             if (currentSelected) {
@@ -291,9 +288,11 @@
         }
 
         document.addEventListener('keydown', (e) => {
-            const validKeys = ['ArrowUp', 'ArrowDown', 'Enter'];
+            const validKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter'];
             if (!validKeys.includes(e.key)) return;
             
+            e.preventDefault();
+
             if (e.key === 'Enter' && currentItems.length > 0) {
                 currentItems[selectedItemIndex].click();
             } else {
