@@ -189,6 +189,10 @@
         
         // --- প্লেব্যাক ফাংশন ---
         function resetPlayer() {
+            if (video.player) {
+                video.player.destroy();
+                video.player = null;
+            }
             video.removeAttribute('src'); 
             video.load(); 
             video.style.display = 'block';
@@ -205,14 +209,14 @@
             resetPlayer();
             
             // `all-in-one-player` ব্যবহার করে প্লেব্যাক
-            const player = new AllInOnePlayer(video, {
+            video.player = new AllInOnePlayer(video, {
                 src: url,
                 autoplay: true,
                 poster: 'https://via.placeholder.com/1280x720.png?text=Loading...',
                 controls: true,
             });
 
-            player.on('error', (error) => {
+            video.player.on('error', (error) => {
                 video.style.display = 'block';
                 let errorMessage = '❌ **প্লেব্যাক ব্যর্থ।** সম্ভবত: ';
                 if (error.type === 'network') {
@@ -226,7 +230,7 @@
                 statusMessage.style.display = 'block';
             });
 
-            player.on('loadedmetadata', () => {
+            video.player.on('loadedmetadata', () => {
                 statusMessage.style.display = 'none';
             });
         }
@@ -278,14 +282,16 @@
             }
             if (currentItems.length === 0) return;
 
-            const numCols = 1; 
+            const numCols = Math.floor(channelGrid.offsetWidth / (160 + 20)) || 1;
 
             if (direction === 'ArrowUp') {
-                selectedItemIndex = (selectedItemIndex - 1 + currentItems.length) % currentItems.length;
+                selectedItemIndex = (selectedItemIndex - numCols + currentItems.length) % currentItems.length;
             } else if (direction === 'ArrowDown') {
+                selectedItemIndex = (selectedItemIndex + numCols) % currentItems.length;
+            } else if (direction === 'ArrowLeft') {
+                selectedItemIndex = (selectedItemIndex - 1 + currentItems.length) % currentItems.length;
+            } else if (direction === 'ArrowRight') {
                 selectedItemIndex = (selectedItemIndex + 1) % currentItems.length;
-            } else if (direction === 'ArrowLeft' || direction === 'ArrowRight') {
-                return;
             }
             
             currentItems[selectedItemIndex].classList.add('selected');
@@ -293,7 +299,7 @@
         }
 
         document.addEventListener('keydown', (e) => {
-            const validKeys = ['ArrowUp', 'ArrowDown', 'Enter'];
+            const validKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter'];
             if (!validKeys.includes(e.key)) return;
             
             e.preventDefault();
