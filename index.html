@@ -3,25 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📺 লাইভ টিভি প্লেয়ার</title>
-    
-    <script src="https://cdn.jsdelivr.net/npm/all-in-one-player@latest/dist/all-in-one.js"></script>
-    
+    <title>Chat App</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
-    
     <style>
-        /* আপনার দেওয়া কোডের উপর ভিত্তি করে নতুন ডিজাইন */
         :root {
             --bg-color: #1a1a2e;
-            --card-bg: #282a47;
+            --chat-bg: #282a47;
             --text-color: #f0f0f0;
             --accent-color: #f99d1c;
             --shadow-color: rgba(0, 0, 0, 0.4);
         }
-        
+
         body {
             font-family: 'Poppins', sans-serif;
             margin: 0;
@@ -29,139 +21,127 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             display: flex;
-            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             min-height: 100vh;
         }
 
-        .container {
-            padding: 20px;
-            flex-grow: 1;
-            max-width: 1400px;
-            margin: 20px auto;
-            display: flex;
-            gap: 20px;
-            background-color: #212135;
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            height: 80vh;
+            background-color: var(--chat-bg);
             border-radius: 15px;
             box-shadow: 0 10px 30px var(--shadow-color);
-        }
-        
-        .player-section {
-            flex-basis: 70%;
-            background-color: #000;
-            border-radius: 10px;
-            position: relative;
+            display: flex;
+            flex-direction: column;
             overflow: hidden;
         }
-        
-        #videoPlayer {
-            width: 100%;
-            aspect-ratio: 16 / 9; 
-            background-color: #000;
+
+        .chat-header {
+            padding: 20px;
+            text-align: center;
+            background-color: #31335a;
+            color: var(--text-color);
+            font-size: 1.5em;
+            font-weight: 600;
         }
-        
-        .channel-sidebar {
-            flex-basis: 30%;
-            max-height: 80vh; 
+
+        .messages {
+            flex-grow: 1;
+            padding: 20px;
             overflow-y: auto;
-            padding: 10px;
-            background-color: var(--card-bg);
-            border-radius: 10px;
-        }
-        
-        .channel-sidebar::-webkit-scrollbar { width: 8px; }
-        .channel-sidebar::-webkit-scrollbar-thumb { background-color: var(--accent-color); border-radius: 4px; }
-        
-        .channel-grid {
-            display: grid;
-            grid-template-columns: 1fr;
+            display: flex;
+            flex-direction: column;
             gap: 10px;
         }
 
-        .channel-card {
-            background-color: #383a60;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px var(--shadow-color);
-            transition: transform 0.2s ease, outline 0.2s ease;
-            cursor: pointer;
-            outline: 3px solid transparent;
-            display: flex;
-            align-items: center;
+        .messages::-webkit-scrollbar { width: 8px; }
+        .messages::-webkit-scrollbar-thumb { background-color: var(--accent-color); border-radius: 4px; }
+
+        .message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            word-wrap: break-word;
         }
         
-        .channel-card:hover {
-            transform: scale(1.02);
-            box-shadow: 0 6px 12px var(--shadow-color);
+        .message.sent {
+            align-self: flex-end;
+            background-color: var(--accent-color);
+            color: #1a1a2e;
         }
         
-        .channel-card.selected {
-            transform: scale(1.02);
-            outline: 3px solid var(--accent-color);
-            box-shadow: 0 0 10px var(--accent-color);
-            background-color: #444670;
-        }
-        
-        .channel-card img {
-            width: 40px; 
-            height: 40px;
-            object-fit: contain;
-            border-radius: 6px;
-            margin-right: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background-color: #fff;
-        }
-        
-        .channel-card h3 {
-            margin: 0;
-            font-size: 0.9em;
+        .message.received {
+            align-self: flex-start;
+            background-color: #555883;
             color: var(--text-color);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
-
-        #statusMessage {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #f0f0f0;
-            text-align: center;
-            padding: 15px 25px;
-            background-color: rgba(0, 0, 0, 0.7);
-            border-radius: 8px;
+        
+        .sender-name {
+            font-size: 0.8em;
             font-weight: 600;
-            z-index: 10;
+            color: #c9c9e0;
+            margin-bottom: 5px;
+        }
+        
+        .message.sent .sender-name {
+            display: none;
         }
 
-        @media (max-width: 900px) {
-            .container {
-                flex-direction: column;
-            }
-            .player-section, .channel-sidebar {
-                flex-basis: 100%;
-                max-height: 40vh;
-            }
+        .message-input-area {
+            padding: 15px;
+            background-color: #31335a;
+            display: flex;
+            gap: 10px;
+        }
+
+        #message-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 20px;
+            background-color: #444670;
+            color: var(--text-color);
+            font-size: 1em;
+            outline: none;
+        }
+
+        #send-button {
+            background-color: var(--accent-color);
+            border: none;
+            color: #1a1a2e;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+        }
+        #send-button:hover {
+            background-color: #ffb84d;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="player-section">
-            <video id="videoPlayer" controls autoplay></video>
-            <div id="statusMessage" style="display: block;">চ্যানেল লোড হচ্ছে...</div>
+    <div class="chat-container">
+        <div class="chat-header">
+            লাইভ চ্যাট
         </div>
-
-        <div class="channel-sidebar" id="app-content">
-            <h2 style="text-align: center; color: var(--accent-color);">চ্যানেল তালিকা</h2>
-            <div class="channel-grid" id="channel-grid">
-                </div>
+        <div class="messages" id="messages-container">
+            </div>
+        <div class="message-input-area">
+            <input type="text" id="message-input" placeholder="মেসেজ লিখুন..." />
+            <button id="send-button">পাঠান</button>
         </div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    
     <script>
-        // *** আপনার Firebase কনফিগারেশন ***
+        // আপনার Firebase কনফিগারেশন এখানে পেস্ট করুন
         const firebaseConfig = {
           apiKey: "AIzaSyBcDC4UMsTgo2IAXUxmTF2UqpvgfRWOwas",
           authDomain: "live-tv-9521d.firebaseapp.com",
@@ -172,141 +152,57 @@
           appId: "1:475229762007:web:9a42815a3bd43acabf5b92",
           measurementId: "G-RH9L4JG4WT"
         };
+
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        const channelsRef = database.ref('channels');
+        const messagesRef = database.ref('messages');
+        const messagesContainer = document.getElementById('messages-container');
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
 
-        const video = document.getElementById('videoPlayer');
-        const channelGrid = document.getElementById('channel-grid');
-        const statusMessage = document.getElementById('statusMessage');
-        let currentItems = [];
-        let selectedItemIndex = 0;
-        
-        // --- প্লেব্যাক ফাংশন ---
-        function resetPlayer() {
-            if (video.player) {
-                video.player.destroy();
-                video.player = null;
+        // Function to send a message
+        function sendMessage() {
+            const messageText = messageInput.value.trim();
+            if (messageText) {
+                const newMessage = {
+                    text: messageText,
+                    timestamp: new Date().toISOString(),
+                    user: 'user_1' // আপনি এখানে ব্যবহারকারীর আইডি বা নাম যোগ করতে পারেন
+                };
+                messagesRef.push(newMessage);
+                messageInput.value = '';
             }
-            video.removeAttribute('src'); 
-            video.load(); 
-            video.style.display = 'block';
-            statusMessage.style.display = 'block';
-            statusMessage.textContent = 'ভিডিও লোড হচ্ছে...';
         }
 
-        window.playM3U8 = function(url, clickedCard) {
-            document.querySelectorAll('.channel-card').forEach(card => card.classList.remove('selected'));
-            if (clickedCard) {
-                clickedCard.classList.add('selected');
-            }
-
-            resetPlayer();
-            
-            // `all-in-one-player` ব্যবহার করে প্লেব্যাক
-            video.player = new AllInOnePlayer(video, {
-                src: url,
-                autoplay: true,
-                poster: 'https://via.placeholder.com/1280x720.png?text=Loading...',
-                controls: true,
-            });
-
-            video.player.on('error', (error) => {
-                video.style.display = 'block';
-                let errorMessage = '❌ **প্লেব্যাক ব্যর্থ।** সম্ভবত: ';
-                if (error.type === 'network') {
-                    errorMessage += 'লিঙ্কটি Hotlink বা CORS দ্বারা সুরক্ষিত।';
-                } else if (error.type === 'fatal') {
-                    errorMessage += 'লিঙ্কটি মেয়াদ উত্তীর্ণ বা ত্রুটিপূর্ণ।';
-                } else {
-                    errorMessage += 'অজানা ত্রুটি।';
-                }
-                statusMessage.innerHTML = errorMessage;
-                statusMessage.style.display = 'block';
-            });
-
-            video.player.on('loadedmetadata', () => {
-                statusMessage.style.display = 'none';
-            });
-        }
-        
-        // --- ডেটা লোড এবং ইউআই ফাংশন ---
-        function loadChannels(dbPath) {
-            channelsRef.once('value', (snapshot) => {
-                const channels = snapshot.val() || {};
-                channelGrid.innerHTML = '';
-                currentItems = [];
-
-                let firstChannelUrl = null;
-                let firstCard = null;
-
-                for (let key in channels) {
-                    const channel = channels[key];
-                    const div = document.createElement('div');
-                    div.className = 'channel-card';
-                    
-                    const imageUrl = channel.image && channel.image.startsWith('http') ? channel.image : 'https://via.placeholder.com/40x40.png?text=TV';
-
-                    div.innerHTML = `<img src="${imageUrl}" alt="${channel.name}"><h3>${channel.name}</h3>`;
-                    
-                    div.onclick = function() {
-                        playM3U8(channel.url, this);
-                        this.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
-                    };
-                    
-                    channelGrid.appendChild(div);
-                    currentItems.push(div);
-                    
-                    if (!firstChannelUrl) {
-                        firstChannelUrl = channel.url;
-                        firstCard = div;
-                    }
-                }
-                
-                if (firstChannelUrl) {
-                    playM3U8(firstChannelUrl, firstCard);
-                }
-            });
-        }
-        
-        // --- কী-বোর্ড নেভিগেশন ---
-        function navigate(direction) {
-            const currentSelected = document.querySelector('.selected');
-            if (currentSelected) {
-                currentSelected.classList.remove('selected');
-            }
-            if (currentItems.length === 0) return;
-
-            const numCols = Math.floor(channelGrid.offsetWidth / (160 + 20)) || 1;
-
-            if (direction === 'ArrowUp') {
-                selectedItemIndex = (selectedItemIndex - numCols + currentItems.length) % currentItems.length;
-            } else if (direction === 'ArrowDown') {
-                selectedItemIndex = (selectedItemIndex + numCols) % currentItems.length;
-            } else if (direction === 'ArrowLeft') {
-                selectedItemIndex = (selectedItemIndex - 1 + currentItems.length) % currentItems.length;
-            } else if (direction === 'ArrowRight') {
-                selectedItemIndex = (selectedItemIndex + 1) % currentItems.length;
-            }
-            
-            currentItems[selectedItemIndex].classList.add('selected');
-            currentItems[selectedItemIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-
-        document.addEventListener('keydown', (e) => {
-            const validKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter'];
-            if (!validKeys.includes(e.key)) return;
-            
-            e.preventDefault();
-
-            if (e.key === 'Enter' && currentItems.length > 0) {
-                currentItems[selectedItemIndex].click();
+        // Listen for new messages
+        messagesRef.on('child_added', (snapshot) => {
+            const message = snapshot.val();
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+            // Check if the message is from the current user (e.g., 'user_1')
+            if (message.user === 'user_1') { 
+                messageElement.classList.add('sent');
             } else {
-                navigate(e.key);
+                messageElement.classList.add('received');
+                const senderName = document.createElement('div');
+                senderName.classList.add('sender-name');
+                senderName.textContent = message.user; // Display sender's name
+                messageElement.appendChild(senderName);
             }
+            const messageTextNode = document.createTextNode(message.text);
+            messageElement.appendChild(messageTextNode);
+
+            messagesContainer.appendChild(messageElement);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         });
 
-        loadChannels('channels');
+        sendButton.addEventListener('click', sendMessage);
+
+        messageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
     </script>
 </body>
 </html>
