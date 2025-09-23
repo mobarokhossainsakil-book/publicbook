@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>আমার প্রথম bওয়েবসাইট</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* CSS ভেরিয়েবলস: সহজে থিম পরিবর্তন করার জন্য */
+        :root {
+            --bg-color: #1a1a2e;
+            --card-color: #2c2c54;
+            --text-color: #e6e6f2;
+            --accent-color: #55acee; /* নীল রঙ */
+            --shadow-light: rgba(0, 0, 0, 0.2);
+            --shadow-dark: rgba(0, 0, 0, 0.5);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, var(--bg-color), #2d2d5a);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            line-height: 1.6;
+        }
+
+        .profile-card {
+            background-color: var(--card-color);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px var(--shadow-dark), 0 5px 15px var(--shadow-light);
+            max-width: 450px;
+            width: 90%;
+            animation: fadeIn 1s ease-in-out;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .profile-img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid var(--accent-color);
+            margin-bottom: 25px;
+            box-shadow: 0 0 15px var(--shadow-light);
+        }
+
+        h1 {
+            font-size: 2.2em;
+            margin: 0 0 5px 0;
+            color: #fff;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        p {
+            font-size: 1.1em;
+            color: #b0b0d6;
+            margin: 0 0 25px 0;
+        }
+
+        .social-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .social-links a {
+            color: var(--accent-color);
+            font-size: 2.5em;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+        
+        /* মাউস হোভার করলে আইকন সামান্য বড় হবে */
+        .social-links a:hover {
+            transform: scale(1.2);
+            color: #fff;
+        }
+
+        /* ফুটার */
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            font-size: 0.8em;
+            color: #777;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="profile-card">
+        <img src="https://via.placeholder.com/150/55acee/ffffff?text=User" alt="আমার ছবি" class="profile-img">
+        
+        <h1>আপনার নাম</h1>
+        <p>ওয়েব ডেভেলপার | ডিজাইনার</p>
+        
+        <ul class="social-links">
+            <li><a href="#"><i class="fab fa-github"></i></a></li>
+            <li><a href="#"><i class="fab fa-twitter"></i></a></li>
+            <li><a href="#"><i class="fab fa-linkedin-in"></i></a></li>
+        </ul>
+    </div>
+
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+</body>
+</html>
