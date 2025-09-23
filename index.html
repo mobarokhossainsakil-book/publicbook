@@ -126,7 +126,7 @@
                     const channel = channels[key];
                     const div = document.createElement('div');
                     div.className = 'channel-card';
-                    div.innerHTML = <img src="${channel.image}" alt="${channel.name}"><h3>${channel.name}</h3>;
+                    div.innerHTML = `<img src="${channel.image}" alt="${channel.name}"><h3>${channel.name}</h3>`;
                     div.onclick = () => window.location.href = channel.link;
                     channelGrid.appendChild(div);
                     currentItems.push(div);
