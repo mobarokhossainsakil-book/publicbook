@@ -13,6 +13,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
     
     <style>
+        /* আপনার দেওয়া কোডের উপর ভিত্তি করে নতুন ডিজাইন */
         :root {
             --bg-color: #1a1a2e;
             --card-bg: #282a47;
@@ -33,19 +34,19 @@
         }
 
         .content {
-            padding: 20px;
+            padding: 30px 20px;
             flex-grow: 1;
             max-width: 1400px;
             margin: 20px auto;
             display: flex;
-            gap: 20px;
+            gap: 30px;
             background-color: #212135;
             border-radius: 15px;
             box-shadow: 0 10px 30px var(--shadow-color);
         }
         
         .player-section {
-            flex-basis: 70%;
+            flex: 2;
             background-color: #000;
             border-radius: 10px;
             position: relative;
@@ -59,7 +60,7 @@
         }
         
         .channel-sidebar {
-            flex-basis: 30%;
+            flex: 1;
             max-height: 80vh; 
             overflow-y: auto;
             padding: 10px;
@@ -73,15 +74,15 @@
         .channel-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 10px;
+            gap: 12px;
         }
 
         .channel-card {
             background-color: #383a60;
-            padding: 10px;
+            padding: 12px;
             border-radius: 8px;
             box-shadow: 0 4px 8px var(--shadow-color);
-            transition: transform 0.2s ease, outline 0.2s ease;
+            transition: transform 0.2s ease, outline 0.2s ease, background-color 0.2s ease;
             cursor: pointer;
             outline: 3px solid transparent;
             display: flex;
@@ -101,18 +102,18 @@
         }
         
         .channel-card img {
-            width: 40px; 
-            height: 40px;
+            width: 45px; 
+            height: 45px;
             object-fit: contain;
             border-radius: 6px;
-            margin-right: 10px;
+            margin-right: 15px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             background-color: #fff;
         }
         
         .channel-card h3 {
             margin: 0;
-            font-size: 0.9em;
+            font-size: 1.1em;
             color: var(--text-color);
             white-space: nowrap;
             overflow: hidden;
@@ -137,8 +138,13 @@
             .content {
                 flex-direction: column;
             }
-            .player-section, .channel-sidebar {
-                flex-basis: 100%;
+            .player-section {
+                flex: none;
+                width: 100%;
+            }
+            .channel-sidebar {
+                flex: none;
+                width: 100%;
                 max-height: 40vh;
             }
         }
@@ -226,7 +232,6 @@
         }
         
         // --- ডেটা লোড এবং ইউআই ফাংশন ---
-
         function loadChannels(dbPath) {
             channelsRef.once('value', (snapshot) => {
                 const channels = snapshot.val() || {};
@@ -288,7 +293,7 @@
         }
 
         document.addEventListener('keydown', (e) => {
-            const validKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter'];
+            const validKeys = ['ArrowUp', 'ArrowDown', 'Enter'];
             if (!validKeys.includes(e.key)) return;
             
             e.preventDefault();
