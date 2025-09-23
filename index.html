@@ -3,14 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>হোম</title>
+    <title>📺 লাইভ টিভি প্লেয়ার</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/all-in-one-player@latest/dist/all-in-one.js"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    
     <style>
+        /* আপনার দেওয়া কোডের উপর ভিত্তি করে নতুন ডিজাইন */
         :root {
             --bg-color: #1a1a2e;
             --card-bg: #282a47;
             --text-color: #f0f0f0;
-            --accent-color: #007bff;
+            --accent-color: #f99d1c;
             --shadow-color: rgba(0, 0, 0, 0.4);
         }
         
@@ -25,80 +33,135 @@
             min-height: 100vh;
         }
 
-        .content {
-            padding: 30px 20px;
+        .container {
+            padding: 20px;
             flex-grow: 1;
-        }
-        
-        .page-title {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #fff;
-            font-size: 2.2em;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-shadow: 0 4px 6px var(--shadow-color);
-        }
-
-        .channel-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            max-width: 1400px;
+            margin: 20px auto;
+            display: flex;
             gap: 20px;
-            justify-content: center;
+            background-color: #212135;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px var(--shadow-color);
         }
         
-        .channel-card {
-            background-color: var(--card-bg);
-            padding: 15px;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 6px 15px var(--shadow-color);
-            transition: transform 0.3s ease, box-shadow 0.3s ease, outline 0.3s ease;
-            cursor: pointer;
-            outline: 4px solid transparent;
+        .player-section {
+            flex-basis: 70%;
+            background-color: #000;
+            border-radius: 10px;
+            position: relative;
             overflow: hidden;
         }
         
+        #videoPlayer {
+            width: 100%;
+            aspect-ratio: 16 / 9; 
+            background-color: #000;
+        }
+        
+        .channel-sidebar {
+            flex-basis: 30%;
+            max-height: 80vh; 
+            overflow-y: auto;
+            padding: 10px;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+        }
+        
+        .channel-sidebar::-webkit-scrollbar { width: 8px; }
+        .channel-sidebar::-webkit-scrollbar-thumb { background-color: var(--accent-color); border-radius: 4px; }
+        
+        .channel-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .channel-card {
+            background-color: #383a60;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px var(--shadow-color);
+            transition: transform 0.2s ease, outline 0.2s ease;
+            cursor: pointer;
+            outline: 3px solid transparent;
+            display: flex;
+            align-items: center;
+        }
+        
         .channel-card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 25px var(--shadow-color);
+            transform: scale(1.02);
+            box-shadow: 0 6px 12px var(--shadow-color);
         }
         
         .channel-card.selected {
-            transform: scale(1.05);
-            outline: 4px solid var(--accent-color);
-            box-shadow: 0 0 20px var(--accent-color);
+            transform: scale(1.02);
+            outline: 3px solid var(--accent-color);
+            box-shadow: 0 0 10px var(--accent-color);
+            background-color: #444670;
         }
         
         .channel-card img {
-            width: 100%;
-            aspect-ratio: 1 / 1;
+            width: 40px; 
+            height: 40px;
             object-fit: contain;
-            border-radius: 12px;
-            margin-bottom: 12px;
+            border-radius: 6px;
+            margin-right: 10px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             background-color: #fff;
         }
         
         .channel-card h3 {
             margin: 0;
-            font-size: 1em;
+            font-size: 0.9em;
             color: var(--text-color);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
+
+        #statusMessage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #f0f0f0;
+            text-align: center;
+            padding: 15px 25px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 10;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column;
+            }
+            .player-section, .channel-sidebar {
+                flex-basis: 100%;
+                max-height: 40vh;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <div class="content" id="app-content">
-        <div class="channel-grid" id="channel-grid"></div>
+    <div class="container">
+        <div class="player-section">
+            <video id="videoPlayer" controls autoplay></video>
+            <div id="statusMessage" style="display: block;">চ্যানেল লোড হচ্ছে...</div>
+        </div>
+
+        <div class="channel-sidebar" id="app-content">
+            <h2 style="text-align: center; color: var(--accent-color);">চ্যানেল তালিকা</h2>
+            <div class="channel-grid" id="channel-grid">
+                </div>
+        </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
     <script>
+        // *** আপনার Firebase কনফিগারেশন ***
         const firebaseConfig = {
           apiKey: "AIzaSyBcDC4UMsTgo2IAXUxmTF2UqpvgfRWOwas",
           authDomain: "live-tv-9521d.firebaseapp.com",
@@ -111,29 +174,102 @@
         };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+        const channelsRef = database.ref('channels');
 
+        const video = document.getElementById('videoPlayer');
         const channelGrid = document.getElementById('channel-grid');
+        const statusMessage = document.getElementById('statusMessage');
         let currentItems = [];
         let selectedItemIndex = 0;
+        
+        // --- প্লেব্যাক ফাংশন ---
+        function resetPlayer() {
+            if (video.player) {
+                video.player.destroy();
+                video.player = null;
+            }
+            video.removeAttribute('src'); 
+            video.load(); 
+            video.style.display = 'block';
+            statusMessage.style.display = 'block';
+            statusMessage.textContent = 'ভিডিও লোড হচ্ছে...';
+        }
 
+        window.playM3U8 = function(url, clickedCard) {
+            document.querySelectorAll('.channel-card').forEach(card => card.classList.remove('selected'));
+            if (clickedCard) {
+                clickedCard.classList.add('selected');
+            }
+
+            resetPlayer();
+            
+            // `all-in-one-player` ব্যবহার করে প্লেব্যাক
+            video.player = new AllInOnePlayer(video, {
+                src: url,
+                autoplay: true,
+                poster: 'https://via.placeholder.com/1280x720.png?text=Loading...',
+                controls: true,
+            });
+
+            video.player.on('error', (error) => {
+                video.style.display = 'block';
+                let errorMessage = '❌ **প্লেব্যাক ব্যর্থ।** সম্ভবত: ';
+                if (error.type === 'network') {
+                    errorMessage += 'লিঙ্কটি Hotlink বা CORS দ্বারা সুরক্ষিত।';
+                } else if (error.type === 'fatal') {
+                    errorMessage += 'লিঙ্কটি মেয়াদ উত্তীর্ণ বা ত্রুটিপূর্ণ।';
+                } else {
+                    errorMessage += 'অজানা ত্রুটি।';
+                }
+                statusMessage.innerHTML = errorMessage;
+                statusMessage.style.display = 'block';
+            });
+
+            video.player.on('loadedmetadata', () => {
+                statusMessage.style.display = 'none';
+            });
+        }
+        
+        // --- ডেটা লোড এবং ইউআই ফাংশন ---
         function loadChannels(dbPath) {
-            database.ref(dbPath).once('value', (snapshot) => {
+            channelsRef.once('value', (snapshot) => {
                 const channels = snapshot.val() || {};
                 channelGrid.innerHTML = '';
                 currentItems = [];
+
+                let firstChannelUrl = null;
+                let firstCard = null;
 
                 for (let key in channels) {
                     const channel = channels[key];
                     const div = document.createElement('div');
                     div.className = 'channel-card';
-                    div.innerHTML = `<img src="${channel.image}" alt="${channel.name}"><h3>${channel.name}</h3>`;
-                    div.onclick = () => window.location.href = channel.link;
+                    
+                    const imageUrl = channel.image && channel.image.startsWith('http') ? channel.image : 'https://via.placeholder.com/40x40.png?text=TV';
+
+                    div.innerHTML = `<img src="${imageUrl}" alt="${channel.name}"><h3>${channel.name}</h3>`;
+                    
+                    div.onclick = function() {
+                        playM3U8(channel.url, this);
+                        this.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
+                    };
+                    
                     channelGrid.appendChild(div);
                     currentItems.push(div);
+                    
+                    if (!firstChannelUrl) {
+                        firstChannelUrl = channel.url;
+                        firstCard = div;
+                    }
+                }
+                
+                if (firstChannelUrl) {
+                    playM3U8(firstChannelUrl, firstCard);
                 }
             });
         }
         
+        // --- কী-বোর্ড নেভিগেশন ---
         function navigate(direction) {
             const currentSelected = document.querySelector('.selected');
             if (currentSelected) {
@@ -143,24 +279,25 @@
 
             const numCols = Math.floor(channelGrid.offsetWidth / (160 + 20)) || 1;
 
-            if (direction === 'ArrowRight') {
-                selectedItemIndex = (selectedItemIndex + 1) % currentItems.length;
+            if (direction === 'ArrowUp') {
+                selectedItemIndex = (selectedItemIndex - numCols + currentItems.length) % currentItems.length;
+            } else if (direction === 'ArrowDown') {
+                selectedItemIndex = (selectedItemIndex + numCols) % currentItems.length;
             } else if (direction === 'ArrowLeft') {
                 selectedItemIndex = (selectedItemIndex - 1 + currentItems.length) % currentItems.length;
-            } else if (direction === 'ArrowUp') {
-                const newIndex = selectedItemIndex - numCols;
-                selectedItemIndex = newIndex < 0 ? selectedItemIndex : newIndex;
-            } else if (direction === 'ArrowDown') {
-                const newIndex = selectedItemIndex + numCols;
-                selectedItemIndex = newIndex >= currentItems.length ? selectedItemIndex : newIndex;
+            } else if (direction === 'ArrowRight') {
+                selectedItemIndex = (selectedItemIndex + 1) % currentItems.length;
             }
+            
             currentItems[selectedItemIndex].classList.add('selected');
             currentItems[selectedItemIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
         document.addEventListener('keydown', (e) => {
-            const validKeys = ['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', 'Enter'];
+            const validKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter'];
             if (!validKeys.includes(e.key)) return;
+            
+            e.preventDefault();
 
             if (e.key === 'Enter' && currentItems.length > 0) {
                 currentItems[selectedItemIndex].click();
