@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat App</title>
+    <title>লগইন/সাইন-আপ</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #1a1a2e;
-            --chat-bg: #282a47;
+            --card-bg: #282a47;
             --text-color: #f0f0f0;
             --accent-color: #f99d1c;
             --shadow-color: rgba(0, 0, 0, 0.4);
@@ -26,119 +26,102 @@
             min-height: 100vh;
         }
 
-        .chat-container {
+        .auth-container {
             width: 100%;
-            max-width: 600px;
-            height: 80vh;
-            background-color: var(--chat-bg);
+            max-width: 400px;
+            background-color: var(--card-bg);
+            padding: 40px;
             border-radius: 15px;
             box-shadow: 0 10px 30px var(--shadow-color);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .chat-header {
-            padding: 20px;
             text-align: center;
-            background-color: #31335a;
-            color: var(--text-color);
-            font-size: 1.5em;
-            font-weight: 600;
         }
 
-        .messages {
-            flex-grow: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        .auth-container h2 {
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--accent-color);
         }
 
-        .messages::-webkit-scrollbar { width: 8px; }
-        .messages::-webkit-scrollbar-thumb { background-color: var(--accent-color); border-radius: 4px; }
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
 
-        .message {
-            max-width: 80%;
-            padding: 10px 15px;
-            border-radius: 15px;
-            word-wrap: break-word;
-        }
-        
-        .message.sent {
-            align-self: flex-end;
-            background-color: var(--accent-color);
-            color: #1a1a2e;
-        }
-        
-        .message.received {
-            align-self: flex-start;
-            background-color: #555883;
-            color: var(--text-color);
-        }
-        
-        .sender-name {
-            font-size: 0.8em;
-            font-weight: 600;
-            color: #c9c9e0;
+        .input-group label {
+            display: block;
             margin-bottom: 5px;
-        }
-        
-        .message.sent .sender-name {
-            display: none;
+            font-weight: 600;
         }
 
-        .message-input-area {
-            padding: 15px;
-            background-color: #31335a;
-            display: flex;
-            gap: 10px;
-        }
-
-        #message-input {
-            flex-grow: 1;
-            padding: 10px;
+        .input-group input {
+            width: 100%;
+            padding: 12px;
             border: none;
-            border-radius: 20px;
-            background-color: #444670;
+            border-radius: 8px;
+            background-color: #383a60;
             color: var(--text-color);
             font-size: 1em;
             outline: none;
         }
 
-        #send-button {
-            background-color: var(--accent-color);
-            border: none;
-            color: #1a1a2e;
-            padding: 10px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: 600;
-            transition: background-color 0.2s ease;
+        .input-group input:focus {
+            box-shadow: 0 0 0 2px var(--accent-color);
         }
-        #send-button:hover {
+
+        .auth-button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background-color: var(--accent-color);
+            color: #1a1a2e;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .auth-button:hover {
             background-color: #ffb84d;
+            transform: translateY(-2px);
+        }
+
+        #auth-message {
+            margin-top: 20px;
+            font-weight: 600;
+        }
+
+        .switch-mode {
+            margin-top: 20px;
+            color: #c9c9e0;
+            cursor: pointer;
+        }
+
+        .switch-mode:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
-    <div class="chat-container">
-        <div class="chat-header">
-            লাইভ চ্যাট
+    <div class="auth-container">
+        <h2 id="form-title">লগইন</h2>
+        <div class="input-group">
+            <label for="email">ইমেইল:</label>
+            <input type="email" id="email" placeholder="ইমেইল লিখুন" required />
         </div>
-        <div class="messages" id="messages-container">
-            </div>
-        <div class="message-input-area">
-            <input type="text" id="message-input" placeholder="মেসেজ লিখুন..." />
-            <button id="send-button">পাঠান</button>
+        <div class="input-group">
+            <label for="password">পাসওয়ার্ড:</label>
+            <input type="password" id="password" placeholder="পাসওয়ার্ড লিখুন" required />
         </div>
+        <button id="auth-button" class="auth-button">লগইন</button>
+        <p id="auth-message"></p>
+        <p class="switch-mode">নতুন ইউজার? সাইন-আপ করুন</p>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
     
     <script>
         // আপনার Firebase কনফিগারেশন এখানে পেস্ট করুন
@@ -154,53 +137,62 @@
         };
 
         firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        const messagesRef = database.ref('messages');
-        const messagesContainer = document.getElementById('messages-container');
-        const messageInput = document.getElementById('message-input');
-        const sendButton = document.getElementById('send-button');
+        const auth = firebase.auth();
 
-        // Function to send a message
-        function sendMessage() {
-            const messageText = messageInput.value.trim();
-            if (messageText) {
-                const newMessage = {
-                    text: messageText,
-                    timestamp: new Date().toISOString(),
-                    user: 'user_1' // আপনি এখানে ব্যবহারকারীর আইডি বা নাম যোগ করতে পারেন
-                };
-                messagesRef.push(newMessage);
-                messageInput.value = '';
-            }
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const authButton = document.getElementById('auth-button');
+        const authMessage = document.getElementById('auth-message');
+        const formTitle = document.getElementById('form-title');
+        const switchMode = document.querySelector('.switch-mode');
+        
+        let isLoginMode = true;
+
+        function showMessage(message, isError = false) {
+            authMessage.textContent = message;
+            authMessage.style.color = isError ? 'red' : 'green';
         }
 
-        // Listen for new messages
-        messagesRef.on('child_added', (snapshot) => {
-            const message = snapshot.val();
-            const messageElement = document.createElement('div');
-            messageElement.classList.add('message');
-            // Check if the message is from the current user (e.g., 'user_1')
-            if (message.user === 'user_1') { 
-                messageElement.classList.add('sent');
+        switchMode.addEventListener('click', () => {
+            isLoginMode = !isLoginMode;
+            if (isLoginMode) {
+                formTitle.textContent = 'লগইন';
+                authButton.textContent = 'লগইন';
+                switchMode.textContent = 'নতুন ইউজার? সাইন-আপ করুন';
             } else {
-                messageElement.classList.add('received');
-                const senderName = document.createElement('div');
-                senderName.classList.add('sender-name');
-                senderName.textContent = message.user; // Display sender's name
-                messageElement.appendChild(senderName);
+                formTitle.textContent = 'সাইন-আপ';
+                authButton.textContent = 'সাইন-আপ';
+                switchMode.textContent = 'আগে থেকে একাউন্ট আছে? লগইন করুন';
             }
-            const messageTextNode = document.createTextNode(message.text);
-            messageElement.appendChild(messageTextNode);
-
-            messagesContainer.appendChild(messageElement);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            authMessage.textContent = '';
         });
 
-        sendButton.addEventListener('click', sendMessage);
+        authButton.addEventListener('click', () => {
+            const email = emailInput.value;
+            const password = passwordInput.value;
 
-        messageInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage();
+            if (isLoginMode) {
+                auth.signInWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        showMessage('লগইন সফল! 🎉');
+                        // এখানে আপনি ব্যবহারকারীকে পরবর্তী পেজে রিডাইরেক্ট করতে পারেন
+                    })
+                    .catch((error) => {
+                        showMessage('লগইন ব্যর্থ। সঠিক ইমেইল ও পাসওয়ার্ড দিন।', true);
+                    });
+            } else {
+                auth.createUserWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        showMessage('সাইন-আপ সফল! এখন লগইন করুন।');
+                        // সাইন-আপের পর লগইন মোডে ফিরে যাওয়া
+                        isLoginMode = true;
+                        formTitle.textContent = 'লগইন';
+                        authButton.textContent = 'লগইন';
+                        switchMode.textContent = 'নতুন ইউজার? সাইন-আপ করুন';
+                    })
+                    .catch((error) => {
+                        showMessage('সাইন-আপ ব্যর্থ। পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।', true);
+                    });
             }
         });
     </script>
