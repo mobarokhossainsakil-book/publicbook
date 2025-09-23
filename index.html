@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📺 লাইভ টিভি প্লেয়ার</title>
+    <title>📺 লাইভ টিভি প্লেয়ার (CORS ফিক্সড)</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script> 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     
@@ -179,6 +179,9 @@
         let hls = null;
         let currentItems = [];
         let selectedItemIndex = 0;
+
+        // CORS প্রক্সি URL
+        const PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
         
         // --- প্লেব্যাক ফাংশন ---
 
@@ -200,10 +203,13 @@
             }
 
             resetPlayer();
+            
+            // CORS প্রক্সি ব্যবহার করে লিঙ্কটি লোড করা হচ্ছে
+            const proxiedUrl = PROXY_URL + url;
 
             if (Hls.isSupported()) {
                 hls = new Hls();
-                hls.loadSource(url);
+                hls.loadSource(proxiedUrl);
                 hls.attachMedia(video);
                 
                 hls.on(Hls.Events.MANIFEST_PARSED, () => {
@@ -225,7 +231,7 @@
                         } else {
                             errorMessage += data.details;
                         }
-                        statusMessage.innerHTML = errorMessage;
+                        statusMessage.innerHTML = errorMessage + ' (প্রক্সি ব্যবহার করা সত্ত্বেও ব্যর্থ হয়েছে)';
                         statusMessage.style.display = 'block';
                         resetPlayer();
                     }
@@ -233,7 +239,7 @@
 
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                 // নেটিভ সাপোর্ট (Safari/iOS)
-                video.src = url;
+                video.src = proxiedUrl;
                 video.addEventListener('loadedmetadata', () => {
                     video.play().catch(console.error);
                     statusMessage.style.display = 'none';
