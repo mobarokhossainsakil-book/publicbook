@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📺 লাইভ টিভি প্লেয়ার</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script> 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     
@@ -46,7 +47,7 @@
             flex-basis: 70%;
             background-color: #000;
             border-radius: 10px;
-            position: relative; /* প্লেয়ার ও মেসেজের জন্য */
+            position: relative;
             overflow: hidden;
         }
         
@@ -147,7 +148,7 @@
     <div class="content">
         <div class="player-section">
             <video id="videoPlayer" controls autoplay></video>
-            <div id="statusMessage" style="display: none;">ভিডিও লোড হচ্ছে...</div>
+            <div id="statusMessage" style="display: block;">চ্যানেল লোড হচ্ছে...</div>
         </div>
 
         <div class="channel-sidebar" id="app-content">
@@ -180,9 +181,6 @@
         let currentItems = [];
         let selectedItemIndex = 0;
         
-        // CORS প্রক্সি URL
-        const PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
-        
         // --- প্লেব্যাক ফাংশন ---
 
         function resetPlayer() {
@@ -192,7 +190,7 @@
             }
             video.removeAttribute('src'); 
             video.load(); 
-            video.style.display = 'block'; /* ভিডিও প্লেয়ার শো করা হচ্ছে */
+            video.style.display = 'block';
             statusMessage.style.display = 'block';
             statusMessage.textContent = 'ভিডিও লোড হচ্ছে...';
         }
@@ -205,12 +203,14 @@
 
             resetPlayer();
             
-            // CORS প্রক্সি ব্যবহার করে লিঙ্কটি লোড করা হচ্ছে
-            const proxiedUrl = PROXY_URL + url;
-
             if (Hls.isSupported()) {
-                hls = new Hls();
-                hls.loadSource(proxiedUrl);
+                hls = new Hls({
+                    // CORS ফিক্সের জন্য header যোগ করা হয়েছে
+                    xhrSetup: function(xhr, url) {
+                        xhr.setRequestHeader('x-requested-with', 'hls.js');
+                    }
+                });
+                hls.loadSource(url);
                 hls.attachMedia(video);
                 
                 hls.on(Hls.Events.MANIFEST_PARSED, () => {
@@ -223,7 +223,7 @@
 
                 hls.on(Hls.Events.ERROR, function (event, data) {
                     if (data.fatal) {
-                        video.style.display = 'none';
+                        video.style.display = 'block';
                         let errorMessage = '❌ **প্লেব্যাক ব্যর্থ।** সম্ভবত: ';
                         if (data.details.includes('networkError')) {
                             errorMessage += 'লিঙ্কটি Hotlink বা CORS দ্বারা সুরক্ষিত।';
@@ -232,15 +232,15 @@
                         } else {
                             errorMessage += data.details;
                         }
-                        statusMessage.innerHTML = errorMessage + ' (প্রক্সি ব্যবহার করা সত্ত্বেও ব্যর্থ হয়েছে)';
+                        statusMessage.innerHTML = errorMessage;
                         statusMessage.style.display = 'block';
-                        resetPlayer();
+                        video.pause();
                     }
                 });
 
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                 // নেটিভ সাপোর্ট (Safari/iOS)
-                video.src = proxiedUrl;
+                video.src = url;
                 video.addEventListener('loadedmetadata', () => {
                     video.play().catch(console.error);
                     statusMessage.style.display = 'none';
