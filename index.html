@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📺 লাইভ টিভি প্লেয়ার (CORS ফিক্সড)</title>
+    <title>📺 লাইভ টিভি প্লেয়ার</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script> 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     
@@ -11,12 +11,11 @@
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
     
     <style>
-        /* আপনার আপলোড করা CSS + ফ্লেক্স লেআউট পরিবর্তন */
         :root {
             --bg-color: #1a1a2e;
             --card-bg: #282a47;
             --text-color: #f0f0f0;
-            --accent-color: #f99d1c; /* হাইলাইট কালার পরিবর্তন */
+            --accent-color: #f99d1c;
             --shadow-color: rgba(0, 0, 0, 0.4);
         }
         
@@ -36,21 +35,19 @@
             flex-grow: 1;
             max-width: 1400px;
             margin: 20px auto;
-            display: flex; /* প্লেয়ার এবং লিস্টের জন্য ফ্লেক্স লেআউট */
+            display: flex;
             gap: 20px;
-            background-color: #212135; /* সামান্য ভিন্ন ব্যাকগ্রাউন্ড */
+            background-color: #212135;
             border-radius: 15px;
             box-shadow: 0 10px 30px var(--shadow-color);
         }
         
-        /* ভিডিও প্লেয়ার এরিয়া */
         .player-section {
             flex-basis: 70%;
             background-color: #000;
             border-radius: 10px;
+            position: relative; /* প্লেয়ার ও মেসেজের জন্য */
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
         }
         
         #videoPlayer {
@@ -59,7 +56,6 @@
             background-color: #000;
         }
         
-        /* চ্যানেল গ্রিড সাইডবার */
         .channel-sidebar {
             flex-basis: 30%;
             max-height: 80vh; 
@@ -69,13 +65,12 @@
             border-radius: 10px;
         }
         
-        /* স্ক্রলবার স্টাইল */
         .channel-sidebar::-webkit-scrollbar { width: 8px; }
         .channel-sidebar::-webkit-scrollbar-thumb { background-color: var(--accent-color); border-radius: 4px; }
         
         .channel-grid {
             display: grid;
-            grid-template-columns: 1fr; /* সাইডবারে একটি কলাম */
+            grid-template-columns: 1fr;
             gap: 10px;
         }
 
@@ -98,7 +93,7 @@
         
         .channel-card.selected {
             transform: scale(1.02);
-            outline: 3px solid var(--accent-color); /* সিলেক্ট কালার */
+            outline: 3px solid var(--accent-color);
             box-shadow: 0 0 10px var(--accent-color);
             background-color: #444670;
         }
@@ -123,12 +118,17 @@
         }
 
         #statusMessage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             color: #f0f0f0;
             text-align: center;
-            padding: 10px;
-            background-color: #3b3b3b;
+            padding: 15px 25px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 8px;
             font-weight: 600;
-            display: none;
+            z-index: 10;
         }
 
         @media (max-width: 900px) {
@@ -147,7 +147,7 @@
     <div class="content">
         <div class="player-section">
             <video id="videoPlayer" controls autoplay></video>
-            <p id="statusMessage" style="display: block;">চ্যানেল লোড হচ্ছে...</p>
+            <div id="statusMessage" style="display: none;">ভিডিও লোড হচ্ছে...</div>
         </div>
 
         <div class="channel-sidebar" id="app-content">
@@ -179,7 +179,7 @@
         let hls = null;
         let currentItems = [];
         let selectedItemIndex = 0;
-
+        
         // CORS প্রক্সি URL
         const PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
         
@@ -192,6 +192,7 @@
             }
             video.removeAttribute('src'); 
             video.load(); 
+            video.style.display = 'block'; /* ভিডিও প্লেয়ার শো করা হচ্ছে */
             statusMessage.style.display = 'block';
             statusMessage.textContent = 'ভিডিও লোড হচ্ছে...';
         }
